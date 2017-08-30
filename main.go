@@ -47,10 +47,24 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+
 	re := regexp.MustCompile(" |/")
 	//Interate through topics and create a file for each
 	for _, v := range Topics {
-		name := directory + "/" + re.ReplaceAllString(v.Title, "_") + ".md"
+		subdir := re.ReplaceAllString(v.Category, "_")
+
+		if subdir == "" {
+			subdir = "uncategorised"
+		}
+
+		if _, err := os.Stat(directory + "/" + subdir); os.IsNotExist(err) {
+			err = os.Mkdir(directory+"/"+subdir, 0777)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		name := directory + "/" + subdir + "/" + re.ReplaceAllString(v.Title, "_") + ".md"
 		fmt.Println(name)
 		file, err := os.Create(name)
 		defer file.Close()
